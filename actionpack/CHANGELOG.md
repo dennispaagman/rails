@@ -1,3 +1,10 @@
+*   Add `ActionDispatch.verbose_redirect_logs` setting that logs where redirects were called from.
+
+    Similar to `verbose_query_logs` on ActiveRecord, this adds a line in your logs that shows
+    where a redirect was called from.
+
+    *Dennis Paagman*
+
 *   Support `immutable` directive in Cache-Control
 
     ```ruby

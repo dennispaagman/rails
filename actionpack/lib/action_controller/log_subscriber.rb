@@ -6,6 +6,8 @@ module ActionController
   class LogSubscriber < ActiveSupport::LogSubscriber
     INTERNAL_PARAMS = %w(controller action format _method only_path)
 
+    class_attribute :backtrace_cleaner, default: ActiveSupport::BacktraceCleaner.new
+
     def start_processing(event)
       return unless logger.info?
 
@@ -56,6 +58,14 @@ module ActionController
 
     def redirect_to(event)
       info { "Redirected to #{event.payload[:location]}" }
+
+      if ActionDispatch.verbose_redirect_logs
+        source = extract_query_source_location(event.payload[:source])
+
+        if source
+          info { "  ↳ #{source}" }
+        end
+      end
     end
     subscribe_log_level :redirect_to, :info
 
@@ -89,6 +99,10 @@ module ActionController
 
     def logger
       ActionController::Base.logger
+    end
+
+    def extract_query_source_location(locations)
+      backtrace_cleaner.clean(locations.lazy).first
     end
   end
 end

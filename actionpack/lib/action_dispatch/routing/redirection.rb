@@ -10,11 +10,12 @@ require "action_dispatch/routing/endpoint"
 module ActionDispatch
   module Routing
     class Redirect < Endpoint # :nodoc:
-      attr_reader :status, :block
+      attr_reader :status, :block, :source
 
-      def initialize(status, block)
+      def initialize(status, block, source)
         @status = status
         @block  = block
+        @source = source
       end
 
       def redirect?; true; end
@@ -27,6 +28,7 @@ module ActionDispatch
           payload[:status] = @status
           payload[:location] = response.headers["Location"]
           payload[:request] = request
+          payload[:source] = source
 
           response.to_a
         end
@@ -206,12 +208,12 @@ module ActionDispatch
         status  = options.delete(:status) || 301
         path    = args.shift
 
-        return OptionRedirect.new(status, options) if options.any?
-        return PathRedirect.new(status, path) if String === path
+        return OptionRedirect.new(status, options, caller) if options.any?
+        return PathRedirect.new(status, path, caller) if String === path
 
         block = path if path.respond_to? :call
         raise ArgumentError, "redirection argument not supported" unless block
-        Redirect.new status, block
+        Redirect.new status, block, caller
       end
     end
   end

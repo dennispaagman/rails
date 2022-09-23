@@ -3358,6 +3358,12 @@ module ApplicationTests
       assert_equal 308, Rails.application.config.action_dispatch.ssl_default_redirect_status
     end
 
+    test "config.action_dispatch.verbose_redirect_logs is false by default in development" do
+      app "development"
+
+      assert_not ActionDispatch.verbose_redirect_logs
+    end
+
     test "Rails.application.config.action_mailer.smtp_settings have open_timeout and read_timeout defined as 5 in 7.0 defaults" do
       remove_from_config '.*config\.load_defaults.*\n'
       add_to_config <<-RUBY
